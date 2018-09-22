@@ -4,6 +4,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const Blockchain = require('./blockchain');
 const uuid = require('uuid/v1');
+const rp = require('request-promise');
 
 const port = process.argv[2];
 const nodeAddress = uuid().split('-').join('');
@@ -58,4 +59,13 @@ app.post('/register-and-broadcast-node', function(req, res) {
 	.then(data => {
 		res.json({ note: 'New node registered with network successfully.' });
 	});
+});
+
+// register a node with the network
+app.post('/register-node', function(req, res) {
+	const newNodeUrl = req.body.newNodeUrl;
+	const nodeNotAlreadyPresent = bitcoin.networkNodes.indexOf(newNodeUrl) == -1;
+	const notCurrentNode = bitcoin.currentNodeUrl !== newNodeUrl;
+	if (nodeNotAlreadyPresent && notCurrentNode) bitcoin.networkNodes.push(newNodeUrl);
+	res.json({ note: 'New node registered successfully.' });
 });
